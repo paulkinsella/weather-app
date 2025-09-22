@@ -10,6 +10,7 @@ import iconRain from "./assets/iconRain.webp"
 import iconSnow from "./assets/iconSnow.webp"
 import iconStorm from "./assets/iconStorm.webp"
 import GetDailyForcast from "./GetDailyForcast"
+import ClearNightSky from "./assets/clearNightSky.png"
 
 function App() {
   const [locationName, setLocationName] = useState("")
@@ -56,12 +57,11 @@ function App() {
   }
 
   function formatHour(timeString: string) {
-    const date = new Date(timeString) // create a Date from string
+    const date = new Date(timeString)
     const formatted = date.toLocaleTimeString([], {
       hour: "numeric",
       hour12: true,
     })
-    console.log("Raw time:", timeString, "→", formatted) // safe logging
     return formatted
   }
 
@@ -97,10 +97,14 @@ function App() {
             className="forecast-image"
             src={getWeatherImage(weatherData.hourly?.weathercode?.[i])}
           />
-          {formatHour(t)}:{" "}
+          <div className="h-time-container">
+          {formatHour(t)}{" "}
+          </div>
+          <div className="h-temp-container">
           {weatherData.hourly?.temperature_2m[i] !== undefined
-            ? `${Math.round(weatherData.hourly.temperature_2m[i])}°C`
+            ? `${Math.round(weatherData.hourly.temperature_2m[i])}°`
             : "--"}
+            </div>
         </div>
       ))
   }
@@ -122,6 +126,9 @@ function App() {
   const getWeatherImage = (code: number | undefined) => {
     switch (code) {
       case 0:
+        if(currentHourIndex > 7){
+          return ClearNightSky
+        }
         return iconSunny
       case 1:
       case 2:
@@ -160,6 +167,8 @@ function App() {
         return "../src/assets/icon-loading.svg"
     }
   }
+
+  console.log("Weather Data", weatherData)
 
   return (
     <>
