@@ -1,3 +1,5 @@
+import { GetWeatherImage } from "./utils"
+
 interface DailyData {
   time: string[]
   temperature_2m_max: number[]
@@ -7,12 +9,13 @@ interface DailyData {
 
 interface Props {
   weatherData?: {
-    daily?: DailyData
+    daily?: DailyData,
+    currentHourIndex?: any
   }
-  getWeatherImage: (code: number) => string
+  
 }
 
-const GetDailyForcast = ({ weatherData, getWeatherImage }: Props) => {
+const GetDailyForcast = ({ weatherData }: Props) => {
   if (!weatherData?.daily) return <div>Loading daily forecast...</div>
 
   const daily = weatherData.daily
@@ -31,7 +34,7 @@ const GetDailyForcast = ({ weatherData, getWeatherImage }: Props) => {
             <div className="day">{weekday}</div>
             <img
               className="forecast-image"
-              src={getWeatherImage(weathercode)}
+              src={GetWeatherImage(weathercode, weatherData.currentHourIndex)}
             />
             <div className="temp-range">
               {maxTemp !== undefined ? Math.round(maxTemp) : "--"}° /{" "}
