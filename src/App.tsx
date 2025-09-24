@@ -2,15 +2,9 @@ import { useState } from "react"
 import logo from "./assets/logo.svg"
 import cog from "./assets/cog.svg"
 import "./App.css"
-import iconSunny from "./assets/iconSunny.webp"
-import iconOvercast from "./assets/iconOvercast.webp"
-import iconFog from "./assets/iconFog.webp"
-import iconDrizzle from "./assets/iconDrizzle.webp"
-import iconRain from "./assets/iconRain.webp"
-import iconSnow from "./assets/iconSnow.webp"
-import iconStorm from "./assets/iconStorm.webp"
+import GetHourlyForecast from "./GetHourlyForecast"
 import GetDailyForcast from "./GetDailyForcast"
-import ClearNightSky from "./assets/clearNightSky.png"
+import { GetWeatherImage } from "./utils"
 
 function App() {
   const [locationName, setLocationName] = useState("")
@@ -56,15 +50,6 @@ function App() {
     }
   }
 
-  function formatHour(timeString: string) {
-    const date = new Date(timeString)
-    const formatted = date.toLocaleTimeString([], {
-      hour: "numeric",
-      hour12: true,
-    })
-    return formatted
-  }
-
   const now = new Date()
   const pad = (n: number) => n.toString().padStart(2, "0")
   const currentHourString = `${now.getFullYear()}-${pad(
@@ -74,8 +59,7 @@ function App() {
   const timeIndex = weatherData?.hourly?.time.findIndex(
     (t) => t === currentHourString
   )
-
-  const precipitation =
+const precipitation =
     timeIndex !== undefined && timeIndex !== -1
       ? weatherData?.hourly?.precipitation?.[timeIndex]
       : undefined
@@ -87,27 +71,6 @@ function App() {
 
   const currentHourIndex =
     weatherData?.hourly?.time.findIndex((t) => t === currentHourString) ?? 0
-
-  const getHourlyForecast = () => {
-    return weatherData?.hourly?.time
-      .slice(currentHourIndex, currentHourIndex + 8)
-      .map((t, i) => (
-        <div className="forecast-card" key={t}>
-          <img
-            className="forecast-image"
-            src={getWeatherImage(weatherData.hourly?.weathercode?.[i])}
-          />
-          <div className="h-time-container">
-          {formatHour(t)}{" "}
-          </div>
-          <div className="h-temp-container">
-          {weatherData.hourly?.temperature_2m[i] !== undefined
-            ? `${Math.round(weatherData.hourly.temperature_2m[i])}°`
-            : "--"}
-            </div>
-        </div>
-      ))
-  }
 
   function getOrdinal(n: number) {
     const s = ["th", "st", "nd", "rd"],
@@ -122,53 +85,6 @@ function App() {
     const year = date.getFullYear()
     return `${weekday}, ${day} ${month} ${year}`
   }
-
-  const getWeatherImage = (code: number | undefined) => {
-    switch (code) {
-      case 0:
-        if(currentHourIndex > 7){
-          return ClearNightSky
-        }
-        return iconSunny
-      case 1:
-      case 2:
-      case 3:
-        return iconOvercast
-      case 45:
-      case 48:
-        return iconFog
-      case 51:
-      case 53:
-      case 55:
-      case 56:
-      case 57:
-        return iconDrizzle
-      case 61:
-      case 63:
-      case 65:
-      case 66:
-      case 67:
-      case 80:
-      case 81:
-      case 82:
-        return iconRain
-      case 71:
-      case 73:
-      case 75:
-      case 77:
-      case 85:
-      case 86:
-        return iconSnow
-      case 95:
-      case 96:
-      case 99:
-        return iconStorm
-      default:
-        return "../src/assets/icon-loading.svg"
-    }
-  }
-
-  console.log("Weather Data", weatherData)
 
   return (
     <>
@@ -215,8 +131,9 @@ function App() {
                       <div className="weather-icon">
                         <img
                           className="weather-image"
-                          src={getWeatherImage(
-                            weatherData.current_weather?.weathercode
+                          src={GetWeatherImage(
+                            weatherData.current_weather?.weathercode,
+                            currentHourIndex
                           )}
                         />
                       </div>
@@ -267,7 +184,6 @@ function App() {
                   <div className="weekly-forecast">
                     <GetDailyForcast
                       weatherData={weatherData}
-                      getWeatherImage={getWeatherImage}
                     />
                   </div>
                 </>
@@ -281,7 +197,7 @@ function App() {
                     <button>Today</button>
                   </div>
                 </div>
-                {getHourlyForecast()}
+                <GetHourlyForecast weatherData={weatherData} currentHourIndex={currentHourIndex}/>
               </div>
             </div>
           </div>
