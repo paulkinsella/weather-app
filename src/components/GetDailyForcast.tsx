@@ -1,4 +1,4 @@
-import { GetWeatherImage } from "./utils"
+import { GetWeatherImage } from "../utils"
 
 interface DailyData {
   time: string[]
@@ -12,7 +12,7 @@ interface Props {
     daily?: DailyData,
     currentHourIndex?: any
   }
-  
+
 }
 
 const GetDailyForcast = ({ weatherData }: Props) => {
